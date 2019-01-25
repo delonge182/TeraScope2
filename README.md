@@ -1,12 +1,9 @@
-TeraScope2
-==============================
-
 Performance evaluation of Terapixel rendering in Cloud (Super)computing
 ==========================================================================================
 
-Both full report (pdf) and Structured abstract (docx) can be found in reports folder.
-==========================================================================================
 
+Both full report (pdf) and Structured abstract (docx) can be found in reports folder.
+------------------------------------------------------------------------------------
 
 How to initialise the project:
 
