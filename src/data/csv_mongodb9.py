@@ -24,16 +24,19 @@ my_list = list(taskset)
 print(len(my_list))
 print(my_list.index('2002b8c0-b3dc-4ad4-af9f-85e52b0bf628'))
 #print(my_list.index('1507e9b5-48b9-44ba-b97b-db634aa72971'))
-#40045 - 4014
-task_gpu_tile_db = db.task_gpu_tile
+40045 - 4014
+task_gpu_db = db.task_gpu
+
+print(my_list[26870])
+
 totalRenderStart, totalRenderStop = '', ''
-counter = 0
-for taskx in my_list:
+counter = 26870
+for taskx in my_list[26870:]:
   gpus_json = []
   tasktile1 = ''
   print(counter)
   counter += 1
-  for app in apps.find({'taskId': taskx, 'eventName': 'TotalRender'}):  
+  for app in apps.find({'taskId': taskx, 'eventName': 'Render'}):  
   #  print(app)
     if app['eventType'] == 'START':
       totalRenderStart = app['timestamp']
@@ -50,34 +53,25 @@ for taskx in my_list:
                               }
                           }):
         
-        temp_json = {
+        task_gpu_tile = json.dumps({'result':[{
           "gpuSerial": gpu["gpuSerial"],
           "gpuUUID": gpu["gpuUUID"],
           "powerDrawWatt": gpu["powerDrawWatt"],
           "gpuTempC": gpu["gpuTempC"],
           "gpuUtilPerc": gpu["gpuUtilPerc"],
           "gpuMemUtilPerc":gpu["gpuMemUtilPerc"],
-          "timestamp":gpu["timestamp"]
-        }
-        gpus_json.append(temp_json)
-          
-      for tasktile in tiles.find({'taskId': app['taskId']}):
-        tasktile1 = tasktile
+          "timestamp":gpu["timestamp"],
+          "jobid": app['jobId'],
+          "taskid": app['taskId'],
+          "hostname": app['hostname'],
+          "start": totalRenderStart,
+          "stop": totalRenderStop,
+          "eventname": 'Render'
+        }]})
+    #    print(type(task_gpu_tile))
+        task_gpu_tile = json.loads(task_gpu_tile)
+    #    print(type(task_gpu_tile['result']))
+        task_gpu_db.insert_many(task_gpu_tile['result'])
+        totalRenderStart, totalRenderStop = '',''
         
-      task_gpu_tile = json.dumps({'result':[{ "taskid": app['taskId'],
-                                  "hostname": app['hostname'],
-                                  "jobid": app['jobId'],
-                                  "gpu": gpus_json,
-                                  "start": totalRenderStart,
-                                  "stop": totalRenderStop,
-                                  "tilexy": {                                    
-                                      "x": tasktile1['x'],
-                                      "y": tasktile1['y'],
-                                      "level": tasktile1['level']
-                                    }
-                                }]})
-  #    print(type(task_gpu_tile))
-      task_gpu_tile = json.loads(task_gpu_tile)
-  #    print(type(task_gpu_tile['result']))
-      task_gpu_tile_db.insert_many(task_gpu_tile['result'])
-      totalRenderStart, totalRenderStop = '',''
+my_list[6501]

@@ -1,0 +1,62 @@
+# Use root/example as user/password credentials
+version: '3.1'
+
+services:
+
+  mongo:
+    image: mongo
+    ports:
+      - 3306:27017
+#    environment:
+#      MONGO_INITDB_ROOT_USERNAME: 'root'
+#      MONGO_INITDB_ROOT_PASSWORD: 'example'
+    environment:
+      - MONGO_DATA_DIR=/data/db
+      - MONGO_LOG_DIR=/dev/null
+    volumes:
+      - mongo-db2:/data/db
+#    command: mongod --smallfiles --logpath=/dev/null # --quiet
+
+
+  mongo-express:
+    image: mongo-express
+    ports:
+      - 8081:8081
+#    environment:
+#      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+#      ME_CONFIG_MONGODB_ADMINPASSWORD: example
+
+#  javabenchmarkapp:
+#    image: nclcloudcomputing/javabenchmarkapp
+#    deploy:
+#      replicas: 2
+#      restart_policy:
+#        condition: on-failure
+#    ports:
+#      - 8080:8080
+
+#  cadvisor:
+#    image: google/cadvisor:latest
+#    volumes:
+#      - /:/rootfs:ro
+#      - /var/run:/var/run:ro
+#      - /sys:/sys:ro
+#      - /var/lib/docker/:/var/lib/docker:ro
+#      - /dev/disk/:/dev/disk:ro
+#    ports:
+#      - 8082:8080
+
+  main:
+    image: dockersamples/visualizer
+    ports:
+      - 88:8080
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+volumes:
+  mongo-db2:
+    external:
+      name: 'mongo-db2-{{.Task.Slot}}'
